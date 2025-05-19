@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FNST</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .tab-container {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 1rem;
+            background-color: #e9e9e9;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        
+        .tab:hover {
+            background-color: #d4d4d4;
+        }
+        
+        .tab.active {
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .content-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .content {
+            display: none;
+        }
+        
+        .content.active {
+            display: block;
+        }
+        
+        .style-selector {
+            margin: 1.5rem 0;
+        }
+        
+        .style-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .style-option {
+            width: 120px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .style-option:hover {
+            transform: translateY(-5px);
+        }
+        
+        .style-option img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 3px solid transparent;
+            transition: border 0.3s ease;
+        }
+        
+        .style-option.selected img {
+            border-color: #6e8efb;
+        }
+        
+        .style-name {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 0.3rem;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        
+        .input-section {
+            margin: 1.5rem 0;
+        }
+        
+        .file-input {
+            width: 0.1px;
+            height: 0.1px;
+            opacity: 0;
+            overflow: hidden;
+            position: absolute;
+            z-index: -1;
+        }
+        
+        .file-label {
+            display: inline-block;
+            background-color: #6e8efb;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-weight: bold;
+        }
+        
+        .file-label:hover {
+            background-color: #5a78e6;
+        }
+        
+        .preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .preview-box {
+            flex: 1;
+            min-width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .preview-title {
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+        
+        .preview-image, .preview-video {
+            max-width: 100%;
+            max-height: 300px;
+            margin: 0 auto;
+            display: block;
+            border-radius: 4px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: #6e8efb;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            border: none;
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+        
+        .btn:hover {
+            background-color: #5a78e6;
+        }
+        
+        .btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .webcam-container {
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+        
+        #webcam, #styled-webcam {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 4px;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .download-btn {
+            background-color: #4CAF50;
+        }
+        
+        .download-btn:hover {
+            background-color: #45a049;
+        }
+        
+        .message {
+            text-align: center;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+        
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+        }
+        
+        .success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+            color: #777;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Fast Neural Style Transfer - Bình - Đạt</h1>
+        <p class="subtitle">Chuyển đổi phong cách nghệ thuật cho ảnh và video - Báo cáo Computer Vision</p>
+    </header>
+    
+    <div class="container">
+        <div class="tab-container">
+            <div class="tab active" data-tab="image">Ảnh</div>
+            <div class="tab" data-tab="video">Video</div>
+            <div class="tab" data-tab="webcam">Webcam</div>
+        </div>
+        
+        <div class="content-container">
+            <!-- Phần chuyển đổi ảnh -->
+            <div class="content active" id="image-content">
+                <h2>Chuyển đổi phong cách cho ảnh</h2>
+                
+                <div class="style-selector">
+                    <h3>Chọn phong cách nghệ thuật:</h3>
+                    <div class="style-options">
+                        <div class="style-option" data-style="starry_night">
+                            <img src="/static/styles/starry_night.jpg" alt="Starry Night Style">
+                            <div class="style-name">Starry Night</div>
+                        </div>
+                        <div class="style-option" data-style="mosaic">
+                            <img src="/static/styles/mosaic.jpg" alt="Mosaic Style">
+                            <div class="style-name">Mosaic</div>
+                        </div>
+                        <div class="style-option" data-style="tokyo_ghoul">
+                            <img src="/static/styles/tokyo2.jpg" alt="Tokyo Ghoul Style">
+                            <div class="style-name">Tokyo Ghoul</div>
+                        </div>
+                        <div class="style-option" data-style="udnie">
+                            <img src="/static/styles/udnie.jpg" alt="Udnie Style">
+                            <div class="style-name">Udnie</div>
+                        </div>
+                        <div class="style-option" data-style="wave">
+                            <img src="/static/styles/wave.jpg" alt="Wave Style">
+                            <div class="style-name">Wave</div>
+                        </div>
+                        <div class="style-option" data-style="bayanihan">
+                            <img src= "" alt="Bayanihan Style">
+                            <div class="style-name">Bayanihan</div>
+                        </div>
+                        <div class="style-option" data-style="lazy">
+                            <img src="/static/styles/lazy.jpg" alt="Lazy Style">
+                            <div class="style-name">Lazy</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="input-section">
+                    <h3>Tải lên ảnh của bạn:</h3>
+                    <input type="file" id="image-input" class="file-input" accept="image/*">
+                    <label for="image-input" class="file-label">Chọn ảnh</label>
+                    <span id="image-file-name"></span>
+                </div>
+                
+                <div class="preview-container">
+                    <div class="preview-box">
+                        <div class="preview-title">Ảnh gốc</div>
+                        <img id="original-image" class="preview-image" src="" alt="Original Image">
+                    </div>
+                    <div class="preview-box">
+                        <div class="preview-title">Ảnh đã chuyển đổi phong cách</div>
+                        <img id="styled-image" class="preview-image" src="" alt="Styled Image">
+                        <button id="download-image" class="btn download-btn" disabled>Tải xuống ảnh</button>
+                    </div>
+                </div>
+                
+                <button id="process-image" class="btn" disabled>Chuyển đổi phong cách</button>
+            </div>
+            
+            <!-- Phần chuyển đổi video -->
+            <div class="content" id="video-content">
+                <h2>Chuyển đổi phong cách cho video</h2>
+                
+                <div class="style-selector">
+                    <h3>Chọn phong cách nghệ thuật:</h3>
+                    <div class="style-options">
+                        <div class="style-option" data-style="starry_night">
+                            <img src="/static/styles/starry_night.jpg" alt="Starry Night Style">
+                            <div class="style-name">Starry Night</div>
+                        </div>
+                        <div class="style-option" data-style="mosaic">
+                            <img src="/static/styles/mosaic.jpg" alt="Mosaic Style">
+                            <div class="style-name">Mosaic</div>
+                        </div>
+                        <div class="style-option" data-style="tokyo_ghoul">
+                            <img src="/static/styles/tokyo2.jpg" alt="Tokyo Ghoul Style">
+                            <div class="style-name">Tokyo Ghoul</div>
+                        </div>
+                        <div class="style-option" data-style="udnie">
+                            <img src="/static/styles/udnie.jpg" alt="Udnie Style">
+                            <div class="style-name">Udnie</div>
+                        </div>
+                        <div class="style-option" data-style="wave">
+                            <img src="/static/styles/wave.jpg" alt="Wave Style">
+                            <div class="style-name">Wave</div>
+                        </div>
+                        <div class="style-option" data-style="bayanihan">
+                            <img src="/static/styles/bayanihan.jpg" alt="Bayanihan Style">
+                            <div class="style-name">Bayanihan</div>
+                        </div>
+                        <div class="style-option" data-style="lazy">
+                            <img src="/static/styles/lazy.jpg" alt="Lazy Style">
+                            <div class="style-name">Lazy</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="input-section">
+                    <h3>Tải lên video của bạn:</h3>
+                    <input type="file" id="video-input" class="file-input" accept="video/*">
+                    <label for="video-input" class="file-label">Chọn video</label>
+                    <span id="video-file-name"></span>
+                </div>
+                
+                <button onclick="testStyledVideo()" class="btn">Test video mẫu</button>
+
+                <div class="preview-container">
+                    <div class="preview-box">
+                        <div class="preview-title">Video gốc</div>
+                        <video id="original-video" class="preview-video" controls></video>
+                    </div>
+                    <div class="preview-box">
+                        <div class="preview-title">Video đã chuyển đổi phong cách</div>
+                        <video id="styled-video" class="preview-video" controls type="video/mp4"></video>
+                        <button id="download-video" class="btn download-btn" disabled>Tải xuống video</button>
+                    </div>
+                </div>
+                
+                <button id="process-video" class="btn" disabled>Chuyển đổi phong cách</button>
+                <div id="video-progress" class="message" style="display: none;">Đang xử lý: <span id="progress-percentage">0</span>%</div>
+            </div>
+            
+            <!-- Phần webcam -->
+            <div class="content" id="webcam-content">
+                <h2>Chuyển đổi phong cách qua webcam</h2>
+                
+                <div class="style-selector">
+                    <h3>Chọn phong cách nghệ thuật:</h3>
+                    <div class="style-options">
+                        <div class="style-option" data-style="starry_night">
+                            <img src="/static/styles/starry_night.jpg" alt="Starry Night Style">
+                            <div class="style-name">Starry Night</div>
+                        </div>
+                        <div class="style-option" data-style="mosaic">
+                            <img src="/static/styles/mosaic.jpg" alt="Mosaic Style">
+                            <div class="style-name">Mosaic</div>
+                        </div>
+                        <div class="style-option" data-style="tokyo_ghoul">
+                            <img src="/static/styles/tokyo2.jpg" alt="Tokyo Ghoul Style">
+                            <div class="style-name">Tokyo Ghoul</div>
+                        </div>
+                        <div class="style-option" data-style="udnie">
+                            <img src="/static/styles/udnie.jpg" alt="Udnie Style">
+                            <div class="style-name">Udnie</div>
+                        </div>
+                        <div class="style-option" data-style="wave">
+                            <img src="/static/styles/wave.jpg" alt="Wave Style">
+                            <div class="style-name">Wave</div>
+                        </div>
+                        <div class="style-option" data-style="bayanihan">
+                            <img src="/static/styles/bayanihan.jpg" alt="Bayanihan Style">
+                            <div class="style-name">Bayanihan</div>
+                        </div>
+                        <div class="style-option" data-style="lazy">
+                            <img src="/static/styles/lazy.jpg" alt="Lazy Style">
+                            <div class="style-name">Lazy</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="webcam-container">
+                    <button id="start-webcam" class="btn">Bắt đầu Webcam</button>
+                    <button id="stop-webcam" class="btn" style="display:none;">Dừng Webcam</button>
+                    
+                    <div class="preview-container">
+                        <div class="preview-box">
+                            <div class="preview-title">Webcam gốc</div>
+                            <video id="webcam" autoplay playsinline></video>
+                        </div>
+                        <div class="preview-box">
+                            <div class="preview-title">Webcam đã chuyển đổi phong cách</div>
+                            <canvas id="styled-webcam"></canvas>
+                            <button id="take-photo" class="btn" disabled>Chụp ảnh</button>
+                            <button id="download-webcam-photo" class="btn download-btn" style="display:none;">Tải xuống ảnh</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <footer>
+        <p>© 2025 Fast Neural Style Transfer | Computer Vision</p>
+    </footer>
+    
+    <script>
+        // Các biến toàn cục
+        let selectedStyle = '';
+        let webcamStream = null;
+        let isProcessingWebcam = false;
+        
+        // DOM Elements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab switching
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // Deactivate all tabs and contents
+                    tabs.forEach(t => t.classList.remove('active'));
+                    contents.forEach(c => c.classList.remove('active'));
+                    
+                    // Activate the selected tab and content
+                    this.classList.add('active');
+                    document.getElementById(`${tabId}-content`).classList.add('active');
+                });
+            });
+            
+            // Style selection
+            const styleOptions = document.querySelectorAll('.style-option');
+            
+            styleOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove selection from all styles
+                    styleOptions.forEach(opt => opt.classList.remove('selected'));
+                    
+                    // Add selection to the clicked style
+                    this.classList.add('selected');
+                    selectedStyle = this.getAttribute('data-style');
+                    
+                    // Check if we can enable the process buttons
+                    checkProcessButtonStatus();
+                });
+            });
+            
+            // Image upload
+            const imageInput = document.getElementById('image-input');
+            const imageFileName = document.getElementById('image-file-name');
+            const originalImage = document.getElementById('original-image');
+            const processImageBtn = document.getElementById('process-image');
+            const downloadImageBtn = document.getElementById('download-image');
+            
+            imageInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    imageFileName.textContent = file.name;
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        originalImage.src = e.target.result;
+                        checkProcessButtonStatus();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Video upload
+            const videoInput = document.getElementById('video-input');
+            const videoFileName = document.getElementById('video-file-name');
+            const originalVideo = document.getElementById('original-video');
+            const processVideoBtn = document.getElementById('process-video');
+            const downloadVideoBtn = document.getElementById('download-video');
+            
+            videoInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    videoFileName.textContent = file.name;
+                    
+                    const url = URL.createObjectURL(file);
+                    originalVideo.src = url;
+                    checkProcessButtonStatus();
+                }
+            });
+            
+            // Webcam control
+            const startWebcamBtn = document.getElementById('start-webcam');
+            const stopWebcamBtn = document.getElementById('stop-webcam');
+            const webcamVideo = document.getElementById('webcam');
+            const styledWebcam = document.getElementById('styled-webcam');
+            const takePhotoBtn = document.getElementById('take-photo');
+            const downloadWebcamPhotoBtn = document.getElementById('download-webcam-photo');
+            
+            startWebcamBtn.addEventListener('click', startWebcam);
+            stopWebcamBtn.addEventListener('click', stopWebcam);
+            takePhotoBtn.addEventListener('click', takeWebcamPhoto);
+            downloadWebcamPhotoBtn.addEventListener('click', downloadWebcamPhoto);
+            
+            // Process buttons
+            processImageBtn.addEventListener('click', processImage);
+            processVideoBtn.addEventListener('click', processVideo);
+            downloadImageBtn.addEventListener('click', downloadStyledImage);
+            downloadVideoBtn.addEventListener('click', downloadStyledVideo);
+            
+            // Check process button status initially
+            checkProcessButtonStatus();
+        });
+        
+        // Helper Functions
+        function checkProcessButtonStatus() {
+            // Image
+            const imageInput = document.getElementById('image-input');
+            const processImageBtn = document.getElementById('process-image');
+            
+            if (imageInput.files.length > 0 && selectedStyle) {
+                processImageBtn.disabled = false;
+            } else {
+                processImageBtn.disabled = true;
+            }
+            
+            // Video
+            const videoInput = document.getElementById('video-input');
+            const processVideoBtn = document.getElementById('process-video');
+            
+            if (videoInput.files.length > 0 && selectedStyle) {
+                processVideoBtn.disabled = false;
+            } else {
+                processVideoBtn.disabled = true;
+            }
+            
+            // Webcam
+            const takePhotoBtn = document.getElementById('take-photo');
+            const webcamVideo = document.getElementById('webcam');
+            
+            if (webcamStream && selectedStyle) {
+                takePhotoBtn.disabled = false;
+            } else {
+                takePhotoBtn.disabled = true;
+            }
+        }
+        
+        function showLoading() {
+            document.querySelector('.loading-overlay').style.display = 'flex';
+        }
+        
+        function hideLoading() {
+            document.querySelector('.loading-overlay').style.display = 'none';
+        }
+        
+        function showMessage(message, type) {
+            // Create message element
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = message;
+            
+            // Find current active content
+            const activeContent = document.querySelector('.content.active');
+            activeContent.appendChild(messageDiv);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
+        
+        // Image processing functions
+        function processImage() {
+            if (!selectedStyle) {
+                showMessage('Vui lòng chọn một phong cách nghệ thuật', 'error');
+                return;
+            }
+
+            const imageInput = document.getElementById('image-input');
+            if (!imageInput.files || imageInput.files.length === 0) {
+                showMessage('Vui lòng chọn một ảnh để xử lý', 'error');
+                return;
+            }
+
+            showLoading();
+
+            const formData = new FormData();
+            formData.append('image', imageInput.files[0]);
+            formData.append('style', selectedStyle);
+
+            fetch('/api/process-image', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Xử lý ảnh thất bại');
+                return response.blob();
+            })
+            .then(blob => {
+                const styledImage = document.getElementById('styled-image');
+                styledImage.src = URL.createObjectURL(blob);
+                document.getElementById('download-image').disabled = false;
+                hideLoading();
+                showMessage('Ảnh đã được xử lý thành công!', 'success');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                hideLoading();
+                showMessage('Có lỗi xảy ra khi xử lý ảnh', 'error');
+            });
+        }
+        
+        function downloadStyledImage() {
+            const styledImage = document.getElementById('styled-image');
+            
+            // Tạo link để download
+            const link = document.createElement('a');
+            link.href = styledImage.src;
+            link.download = `styled_image_${selectedStyle}_${new Date().getTime()}.jpg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // Video processing functions
+        function processVideo() {
+            if (!selectedStyle) {
+                showMessage('Vui lòng chọn một phong cách nghệ thuật', 'error');
+                return;
+            }
+            
+            const videoInput = document.getElementById('video-input');
+            if (!videoInput.files || videoInput.files.length === 0) {
+                showMessage('Vui lòng chọn một video để xử lý', 'error');
+                return;
+            }
+            
+            showLoading();
+            const videoProgress = document.getElementById('video-progress');
+            videoProgress.style.display = 'block';
+            document.getElementById('progress-percentage').textContent = '0';
+
+            const formData = new FormData();
+            formData.append('video', videoInput.files[0]);
+            formData.append('style', selectedStyle);
+
+            fetch('/api/process-video', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Xử lý video thất bại');
+                return response.blob();
+            })
+            .then(blob => {
+                const styledVideo = document.getElementById('styled-video');
+                styledVideo.src = URL.createObjectURL(blob);
+                document.getElementById('download-video').disabled = false;
+                hideLoading();
+                videoProgress.style.display = 'none';
+                showMessage('Video đã được xử lý thành công!', 'success');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                hideLoading();
+                videoProgress.style.display = 'none';
+                showMessage('Có lỗi xảy ra khi xử lý video', 'error');
+            });
+        }
+        
+        function downloadStyledVideo() {
+            const styledVideo = document.getElementById('styled-video');
+            
+            // Tạo link để download
+            const link = document.createElement('a');
+            link.href = styledVideo.src;
+            link.download = `styled_video_${selectedStyle}_${new Date().getTime()}.mp4`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // Webcam functions
+        async function startWebcam() {
+            try {
+                webcamStream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 640 }, height: { ideal: 480 } }
+                });
+                const webcamVideo = document.getElementById('webcam');
+                webcamVideo.srcObject = webcamStream;
+
+                document.getElementById('start-webcam').style.display = 'none';
+                document.getElementById('stop-webcam').style.display = 'inline-block';
+
+                // Setup canvas
+                const styledCanvas = document.getElementById('styled-webcam');
+                styledCanvas.width = 640;
+                styledCanvas.height = 480;
+
+                checkProcessButtonStatus();
+                showMessage('Webcam đã được kích hoạt', 'success');
+            } catch (error) {
+                console.error('Error accessing webcam:', error);
+                showMessage('Không thể truy cập webcam. Vui lòng kiểm tra quyền truy cập camera.', 'error');
+            }
+        }
+        
+        function stopWebcam() {
+            if (webcamStream) {
+                webcamStream.getTracks().forEach(track => track.stop());
+                webcamStream = null;
+                document.getElementById('start-webcam').style.display = 'inline-block';
+                document.getElementById('stop-webcam').style.display = 'none';
+                document.getElementById('take-photo').disabled = true;
+                showMessage('Webcam đã được tắt', 'success');
+            }
+        }
+        
+        function takeWebcamPhoto() {
+            if (!webcamStream || !selectedStyle) {
+                showMessage('Vui lòng bật webcam và chọn phong cách', 'error');
+                return;
+            }
+            showLoading();
+
+            const webcamVideo = document.getElementById('webcam');
+            const styledCanvas = document.getElementById('styled-webcam');
+            const ctx = styledCanvas.getContext('2d');
+            // Lấy frame gốc từ webcam video
+            ctx.drawImage(webcamVideo, 0, 0, styledCanvas.width, styledCanvas.height);
+
+            // Chuyển frame thành blob để gửi lên server
+            styledCanvas.toBlob(function(blob) {
+                const formData = new FormData();
+                formData.append('image', blob, 'webcam.png');
+                formData.append('style', selectedStyle);
+
+                fetch('/api/process-image', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Xử lý ảnh webcam thất bại');
+                    return response.blob();
+                })
+                .then(blob => {
+                    // Hiển thị ảnh đã chuyển style lên canvas
+                    const img = new Image();
+                    img.onload = function() {
+                        ctx.clearRect(0, 0, styledCanvas.width, styledCanvas.height);
+                        ctx.drawImage(img, 0, 0, styledCanvas.width, styledCanvas.height);
+                    };
+                    img.src = URL.createObjectURL(blob);
+
+                    document.getElementById('download-webcam-photo').style.display = 'inline-block';
+                    hideLoading();
+                    showMessage('Ảnh webcam đã được xử lý thành công!', 'success');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    hideLoading();
+                    showMessage('Có lỗi xảy ra khi xử lý ảnh webcam', 'error');
+                });
+            }, 'image/png');
+        }
+        
+        function downloadWebcamPhoto() {
+            const styledCanvas = document.getElementById('styled-webcam');
+            
+            // Tạo link để download
+            const link = document.createElement('a');
+            link.href = styledCanvas.toDataURL('image/png');
+            link.download = `webcam_styled_${selectedStyle}_${new Date().getTime()}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function testStyledVideo() {
+            const styledVideo = document.getElementById('styled-video');
+            styledVideo.src = "static/fox.mp4";
+            styledVideo.load();
+            styledVideo.play();
+            document.getElementById('download-video').disabled = false;
+            showMessage('Đã load video mẫu!', 'success');
+        }
+    </script>
+</body>
+</html>
